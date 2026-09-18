@@ -1,0 +1,7 @@
+# Count dbt models as SQL in the language bar (they're Jinja-templated SQL)
+models/**/*.sql linguist-language=SQL
+tests/**/*.sql linguist-language=SQL
+
+# Don't let generated/vendored stuff skew the stats
+dbt_packages/** linguist-vendored
+target/** linguist-generated
