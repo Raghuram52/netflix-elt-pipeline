@@ -1,0 +1,97 @@
+version: 2
+
+models:
+  # ---- Dimensions ----
+  - name: dim_title
+    description: "Title dimension. Grain: one row per title."
+    columns:
+      - name: title_key
+        description: "Surrogate key."
+        data_tests: [not_null, unique]
+      - name: show_id
+        data_tests: [not_null, unique]
+      - name: type
+        data_tests:
+          - accepted_values:
+              values: ["Movie", "TV Show"]
+      - name: duration_minutes
+        description: "Positive when present."
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: 1
+              inclusive: true
+              config:
+                where: "duration_minutes is not null"
+
+  - name: dim_genre
+    description: "Genre dimension. Grain: one row per genre."
+    columns:
+      - name: genre_key
+        data_tests: [not_null, unique]
+      - name: genre
+        data_tests: [not_null, unique]
+
+  - name: dim_director
+    description: "Director dimension. Grain: one row per director."
+    columns:
+      - name: director_key
+        data_tests: [not_null, unique]
+      - name: director
+        data_tests: [not_null, unique]
+
+  - name: dim_country
+    description: "Country dimension. Grain: one row per country."
+    columns:
+      - name: country_key
+        data_tests: [not_null, unique]
+      - name: country
+        data_tests: [not_null, unique]
+
+  # ---- Bridges (many-to-many). Every key must resolve to its dimension. ----
+  - name: bridge_title_genre
+    description: "Resolves titles <-> genres. Grain: one row per (title, genre)."
+    columns:
+      - name: title_key
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_title')
+              field: title_key
+      - name: genre_key
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_genre')
+              field: genre_key
+
+  - name: bridge_title_director
+    description: "Resolves titles <-> directors. Grain: one row per (title, director)."
+    columns:
+      - name: title_key
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_title')
+              field: title_key
+      - name: director_key
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_director')
+              field: director_key
+
+  - name: bridge_title_country
+    description: "Resolves titles <-> countries. Grain: one row per (title, country)."
+    columns:
+      - name: title_key
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_title')
+              field: title_key
+      - name: country_key
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_country')
+              field: country_key

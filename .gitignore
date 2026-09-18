@@ -1,0 +1,21 @@
+# dbt
+target/
+dbt_packages/
+logs/
+package-lock.yml
+
+# DuckDB warehouse file (rebuilt from the CSV; never commit the DB)
+*.duckdb
+*.duckdb.wal
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

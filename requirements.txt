@@ -1,0 +1,13 @@
+# Ingestion + validation
+pandas>=2.0
+pandera>=0.20
+duckdb>=1.0
+
+# dbt (DuckDB is the default engine; Postgres is the production-like target)
+dbt-core>=1.8
+dbt-duckdb>=1.8
+dbt-postgres>=1.8
+
+# Postgres ingestion path only
+SQLAlchemy>=2.0
+psycopg2-binary>=2.9

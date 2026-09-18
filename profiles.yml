@@ -1,0 +1,28 @@
+# dbt connection profiles.
+#
+# `dev` (DuckDB) is the default: zero infrastructure, runs cold and in CI with no
+# services. `postgres` is the production-like target — the SAME models run against
+# it by swapping `--target postgres`, which is the point: the warehouse is a
+# deployment detail, not a rewrite. Snowflake/BigQuery would be one more target block.
+#
+# In CI and locally we point dbt at the same DuckDB file the ingestion step writes,
+# via the DUCKDB_PATH env var (defaults to ./netflix.duckdb).
+
+netflix_elt:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('DUCKDB_PATH', 'netflix.duckdb') }}"
+      schema: main
+      threads: 4
+
+    postgres:
+      type: postgres
+      host: "{{ env_var('POSTGRES_HOST', 'localhost') }}"
+      port: "{{ env_var('POSTGRES_PORT', '5432') | int }}"
+      user: "{{ env_var('POSTGRES_USER', 'netflix') }}"
+      password: "{{ env_var('POSTGRES_PASSWORD', 'netflix') }}"
+      dbname: "{{ env_var('POSTGRES_DB', 'netflix') }}"
+      schema: analytics
+      threads: 4

@@ -1,0 +1,44 @@
+name: ci
+
+# Runs the whole pipeline on every push/PR: validate + ingest the CSV, build the
+# dbt models, and run every data test. DuckDB means no services are needed, so CI
+# is fast and hermetic. A green check here means the transformations and data
+# contracts are verified — not just that the code compiles.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    env:
+      DBT_PROFILES_DIR: ${{ github.workspace }}
+      DUCKDB_PATH: ${{ github.workspace }}/netflix.duckdb
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install dbt packages
+        run: dbt deps
+
+      - name: Ingest (validate data contract + load)
+        run: python -m ingest.ingest
+
+      - name: Build models + run all data tests
+        run: dbt build
+
+      - name: Generate docs (lineage catalog)
+        run: dbt docs generate

@@ -1,0 +1,34 @@
+# Production-like target: a Postgres warehouse in a container.
+#
+# The default pipeline runs on DuckDB with no services at all (see the Makefile).
+# This compose file exists to demonstrate the SAME dbt models running against a
+# real client/server warehouse — bring it up, then:
+#
+#   export TARGET=postgres
+#   export POSTGRES_URL=postgresql+psycopg2://netflix:netflix@localhost:5432/netflix
+#   python -m ingest.ingest
+#   dbt build --target postgres
+#
+# This is deliberately Postgres and not Spark/Kafka: at ~8.8k rows those tools
+# would be theatre. See the README "Right-sizing" note.
+
+services:
+  warehouse:
+    image: postgres:16
+    container_name: netflix_warehouse
+    environment:
+      POSTGRES_USER: netflix
+      POSTGRES_PASSWORD: netflix
+      POSTGRES_DB: netflix
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U netflix"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  pgdata:
