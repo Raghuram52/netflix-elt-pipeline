@@ -1,3 +1,5 @@
+![CI](https://github.com/Raghuram52/netflix-elt-pipeline/actions/workflows/ci.yml/badge.svg)
+
 # Netflix ELT Pipeline
 
 A tested, reproducible ELT pipeline that turns the raw Netflix catalogue into a
